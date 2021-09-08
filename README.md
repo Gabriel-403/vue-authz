@@ -28,7 +28,7 @@ import App from './App.vue';
 import useAuthorizer  from "vue-authz"
 import { MemoryAdapter, newEnforcer } from 'casbin.js';
 
-const a = new MemoryAdapter("p, alice, data1, read\n" +
+const a = await MemoryAdapter("p, alice, data1, read\n" +
     "p, alice, data2, read\n" +
     "p, alice, data2, write\n" +
     "p, bob, data2, write")

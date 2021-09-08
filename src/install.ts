@@ -1,4 +1,4 @@
-import { App } from 'vue';
+import Vue from 'vue';
 import { Enforcer, newEnforcer} from 'casbin.js';
 import { AUTHORIZER_KEY } from './useAuthorizer';
 
@@ -7,7 +7,7 @@ export interface CasbinPluginOptions {
     customProperties?: Array<string>;
 }
 
-const install = function (app: App, enforcer: Enforcer, options?: CasbinPluginOptions) {
+const install = function (vue: Vue, enforcer: Enforcer, options?: CasbinPluginOptions) {
     if (options == undefined){
         options = {
             useGlobalProperties: false,
@@ -19,15 +19,13 @@ const install = function (app: App, enforcer: Enforcer, options?: CasbinPluginOp
         'enforceEx'
     ];
 
-    app.provide(AUTHORIZER_KEY, enforcer);
-
     if (!Enforcer || !(enforcer instanceof Enforcer)) {
         throw new Error('Please provide an enforcer instance to plugin.');
     }
 
     if (options) {
         if (options.useGlobalProperties) {
-            app.config.globalProperties.$enforcer = enforcer;
+            Vue.prototype.$enforcer = enforcer
 
             if (options.customProperties) {
                 const targetProperties = availableProperties.filter((property: string) => {
@@ -39,7 +37,7 @@ const install = function (app: App, enforcer: Enforcer, options?: CasbinPluginOp
                     if (property) {
                         const propertyKey = `$${propertyStr}`
                         // app.config.globalProperties[propertyKey] = property;
-                        Object.defineProperty(app.config.globalProperties,propertyKey,{
+                        Object.defineProperty(Vue.prototype,propertyKey,{
                             enumerable: true,
                             configurable: true,
                             writable: true,
@@ -50,7 +48,7 @@ const install = function (app: App, enforcer: Enforcer, options?: CasbinPluginOp
                     }
                 });
             } else {
-                app.config.globalProperties.$enforce = enforcer.enforce;
+                Vue.prototype.$enforce = enforcer.enforce;
             }
         }
     }
